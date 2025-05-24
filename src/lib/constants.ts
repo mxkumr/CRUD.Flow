@@ -1,5 +1,5 @@
 
-import type { StaffMember, Task, Client, BusinessData } from '@/types';
+import type { StaffMember, Task, Client } from '@/types'; // Removed BusinessData
 
 // mockStaff is now largely superseded by dynamic users from signupRequests for task assignment.
 // It can be kept for fallback or removed if no longer directly used.
@@ -91,35 +91,4 @@ export const mockClients: Client[] = [
   },
 ];
 
-export const mockBusinessData: BusinessData[] = [
-    {
-        id: 'biz-1',
-        name: 'Gourmet Cafe SF',
-        website: 'https://gourmetcafesf.example.com',
-        phone: '415-555-0100',
-        email: 'contact@gourmetcafesf.example.com',
-        address: '123 Main St, San Francisco, CA 94107',
-        category: 'Restaurant',
-        details: 'Offers organic coffee and pastries.'
-    },
-    {
-        id: 'biz-2',
-        name: 'Tech Solutions Inc.',
-        website: 'https://techsolutionsinc.example.com',
-        phone: '650-555-0123',
-        email: 'info@techsolutionsinc.example.com',
-        address: '456 Innovation Dr, Palo Alto, CA 94301',
-        category: 'IT Services',
-        details: 'Provides cloud consulting and software development.'
-    },
-    {
-        id: 'biz-3',
-        name: 'City Books & Brews',
-        website: 'https://citybooksbrews.example.com',
-        phone: '415-555-0155',
-        email: 'events@citybooksbrews.example.com',
-        address: '789 Literary Ln, San Francisco, CA 94102',
-        category: 'Bookstore/Cafe',
-        details: 'Independent bookstore with an in-house cafe.'
-    }
-];
+// mockBusinessData removed

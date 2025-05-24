@@ -27,13 +27,7 @@ export const ClientFormSchema = z.object({
 });
 export type ClientFormData = z.infer<typeof ClientFormSchema>;
 
-
-export const DataRequestFormSchema = z.object({
-  geographicRange: z.string().min(3, "Geographic range must be specified."),
-  businessType: z.string().min(3, "Business type must be specified."),
-  assignedToUserId: z.string().optional(), // Optional: ID of the user to assign data to
-});
-export type DataRequestFormData = z.infer<typeof DataRequestFormSchema>;
+// DataRequestFormSchema and DataRequestFormData removed
 
 export const SignupFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -43,4 +37,3 @@ export const SignupFormSchema = z.object({
   // We are not asking for password at signup, admin grants access.
 });
 export type SignupFormData = z.infer<typeof SignupFormSchema>;
-

@@ -37,16 +37,7 @@ export type Client = {
   createdAt: string; // ISO date string
 };
 
-export type BusinessData = {
-  id: string;
-  name: string;
-  website?: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-  category?: string;
-  details?: string;
-};
+// BusinessData type removed as Data Request feature is removed
 
 // For AI Task Prioritization, mapping our Task to the AI's expected Task format
 import type { Task as AITaskInput } from '@/ai/flows/prioritize-tasks';

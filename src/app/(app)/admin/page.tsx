@@ -2,12 +2,12 @@
 'use client';
 
 import { ClientPanel } from "@/components/panels/ClientPanel";
-import { DataRequestPanel } from "@/components/panels/DataRequestPanel";
+// import { DataRequestPanel } from "@/components/panels/DataRequestPanel"; // Removed
 import { PendingRequestsPanel } from "@/components/admin/PendingRequestsPanel";
-import { DeveloperPanel } from "@/components/panels/DeveloperPanel"; // New import
-import { MarketingPanel } from "@/components/panels/MarketingPanel"; // New import
+import { DeveloperPanel } from "@/components/panels/DeveloperPanel";
+import { MarketingPanel } from "@/components/panels/MarketingPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, DatabaseZap, UserCheck, Code, Megaphone } from "lucide-react"; // Added Code, Megaphone
+import { Users, UserCheck, Code, Megaphone } from "lucide-react"; // Removed DatabaseZap
 
 export default function AdminDashboardPage() {
   return (
@@ -19,9 +19,9 @@ export default function AdminDashboardPage() {
           <TabsTrigger value="clients" className="px-3 py-1.5">
             <Users className="mr-2 h-4 w-4 flex-shrink-0" /> Clients
           </TabsTrigger>
-          <TabsTrigger value="data-request" className="px-3 py-1.5">
+          {/* <TabsTrigger value="data-request" className="px-3 py-1.5">
             <DatabaseZap className="mr-2 h-4 w-4 flex-shrink-0" /> Data Request
-          </TabsTrigger>
+          </TabsTrigger> */}
           <TabsTrigger value="pending-requests" className="px-3 py-1.5">
             <UserCheck className="mr-2 h-4 w-4 flex-shrink-0" /> Sign-up Requests
           </TabsTrigger>
@@ -35,9 +35,9 @@ export default function AdminDashboardPage() {
         <TabsContent value="clients">
           <ClientPanel />
         </TabsContent>
-        <TabsContent value="data-request">
+        {/* <TabsContent value="data-request">
           <DataRequestPanel />
-        </TabsContent>
+        </TabsContent> */}
         <TabsContent value="pending-requests">
           <PendingRequestsPanel />
         </TabsContent>

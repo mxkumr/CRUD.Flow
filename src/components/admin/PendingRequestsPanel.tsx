@@ -13,6 +13,7 @@ import { format, parseISO } from 'date-fns';
 import { ScrollArea } from '../ui/scroll-area';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label"; // Added import for Label
 
 const SIGNUP_REQUESTS_STORAGE_KEY = 'signupRequests';
 const SUPER_ADMIN_EMAIL = 'thecrudstudio@gmail.com';

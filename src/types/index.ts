@@ -37,8 +37,6 @@ export type Client = {
   createdAt: string; // ISO date string
 };
 
-// BusinessData type removed as Data Request feature is removed
-
 // For AI Task Prioritization, mapping our Task to the AI's expected Task format
 import type { Task as AITaskInput } from '@/ai/flows/prioritize-tasks';
 
@@ -94,4 +92,18 @@ export const getAssignableUsers = (panelType?: 'marketing' | 'developer' | 'admi
   }
   // If no panelType or admin, return all approved users. Admins can be assigned any task.
   return approvedUsers;
+};
+
+// Types for Marketing Campaign Data
+export type CampaignLead = Record<string, string>;
+
+export type Campaign = {
+  id: string;
+  name: string;
+  data: CampaignLead[];
+  headers: string[];
+  assignedToId?: string;
+  uploadedByRole?: UserRole; // Role of the user who uploaded it
+  uploaderId?: string; // ID of the user who uploaded it
+  createdAt: string; // ISO date string
 };

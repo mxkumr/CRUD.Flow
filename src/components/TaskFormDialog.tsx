@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,59 +35,73 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon, PlusCircle, Edit } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import type { Task, StaffMember } from "@/types";
+import type { Task, SystemUser } from "@/types";
 import { TaskFormSchema, type TaskFormData } from "@/lib/schemas";
-import { taskStatuses, taskTypes, taskImportances } from "@/types";
-import { mockStaff } from "@/lib/constants"; // Using mockStaff for assignees
-import React from "react";
+import { taskStatuses, taskTypes, taskImportances, getAssignableUsers } from "@/types";
+import React, { useEffect, useState } from "react";
 
 interface TaskFormDialogProps {
   task?: Task;
   onSave: (data: TaskFormData, id?: string) => void;
   triggerButton?: React.ReactNode;
   mode?: 'create' | 'edit';
+  panelType?: 'marketing' | 'developer' | 'admin'; // To filter assignable users
 }
 
-export function TaskFormDialog({ task, onSave, triggerButton, mode = 'create' }: TaskFormDialogProps) {
+export function TaskFormDialog({ task, onSave, triggerButton, mode = 'create', panelType }: TaskFormDialogProps) {
   const [open, setOpen] = React.useState(false);
   const [calendarOpen, setCalendarOpen] = React.useState(false);
+  const [assignableUsers, setAssignableUsers] = useState<SystemUser[]>([]);
+
+  useEffect(() => {
+    if (open) {
+      // Fetch assignable users when dialog opens
+      setAssignableUsers(getAssignableUsers(panelType));
+    }
+  }, [open, panelType]);
 
   const form = useForm<TaskFormData>({
     resolver: zodResolver(TaskFormSchema),
     defaultValues: task
-      ? { ...task, assignedToId: task.assignedToId || undefined }
+      ? { ...task, assignedToId: task.assignedToId || "unassigned" } // Ensure "unassigned" is string
       : {
           title: "",
           description: "",
           status: "pending",
-          type: "email",
+          type: panelType === 'developer' ? 'development' : panelType === 'marketing' ? 'email' : 'meeting', // sensible default based on panel
           deadline: format(new Date(), "yyyy-MM-dd"),
           importance: "medium",
-          assignedToId: undefined,
+          assignedToId: "unassigned",
         },
   });
 
   React.useEffect(() => {
-    if (task && open) {
-      form.reset({ ...task, assignedToId: task.assignedToId || undefined });
-    } else if (!task && open) {
-      form.reset({
-          title: "",
-          description: "",
-          status: "pending",
-          type: "email",
-          deadline: format(new Date(), "yyyy-MM-dd"),
-          importance: "medium",
-          assignedToId: undefined,
-      });
+    if (open) {
+      if (task) {
+        form.reset({ ...task, assignedToId: task.assignedToId || "unassigned" });
+      } else {
+        form.reset({
+            title: "",
+            description: "",
+            status: "pending",
+            type: panelType === 'developer' ? 'development' : panelType === 'marketing' ? 'email' : 'meeting',
+            deadline: format(new Date(), "yyyy-MM-dd"),
+            importance: "medium",
+            assignedToId: "unassigned",
+        });
+      }
     }
-  }, [task, open, form]);
+  }, [task, open, form, panelType]);
 
 
   const onSubmit = (data: TaskFormData) => {
-    onSave(data, task?.id);
+    const dataToSave = {
+      ...data,
+      assignedToId: data.assignedToId === "unassigned" ? undefined : data.assignedToId,
+    };
+    onSave(dataToSave, task?.id);
     setOpen(false);
-    form.reset();
+    // form.reset(); // Reset is handled by useEffect on 'open' state change
   };
 
   return (
@@ -141,7 +156,7 @@ export function TaskFormDialog({ task, onSave, triggerButton, mode = 'create' }:
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Assign To</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || "unassigned"}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select staff member" />
@@ -149,9 +164,10 @@ export function TaskFormDialog({ task, onSave, triggerButton, mode = 'create' }:
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="unassigned">Unassigned</SelectItem>
-                        {mockStaff.map((staff) => (
-                          <SelectItem key={staff.id} value={staff.id}>
-                            {staff.name} ({staff.role})
+                        {assignableUsers.length === 0 && <SelectItem value="loading" disabled>Loading users...</SelectItem>}
+                        {assignableUsers.map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name} ({user.desiredRole})
                           </SelectItem>
                         ))}
                       </SelectContent>

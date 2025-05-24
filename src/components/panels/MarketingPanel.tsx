@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -9,7 +10,7 @@ import { TaskFormDialog } from "@/components/TaskFormDialog";
 import { AIPrioritizationSection } from "@/components/AIPrioritizationSection";
 import type { Task, TaskStatus } from "@/types";
 import { TaskFormData } from "@/lib/schemas";
-import { mockTasks } from "@/lib/constants";
+import { mockTasks } from "@/lib/constants"; // Filter these by type, assignment uses real users
 import { PlusCircle, Search, Filter } from "lucide-react";
 
 export function MarketingPanel() {
@@ -18,47 +19,55 @@ export function MarketingPanel() {
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
   const [importanceFilter, setImportanceFilter] = useState<Task["importance"] | "all">("all");
   
-  // Load marketing tasks on mount
   useEffect(() => {
     const marketingTaskTypes: Task["type"][] = ['cold-call', 'email', 'content-creation', 'research', 'meeting'];
-    setTasks(mockTasks.filter(task => marketingTaskTypes.includes(task.type)));
+    const storedTasks = JSON.parse(localStorage.getItem('marketingTasks') || 'null');
+    if (storedTasks) {
+      setTasks(storedTasks);
+    } else {
+      const initialMarketingTasks = mockTasks.filter(task => marketingTaskTypes.includes(task.type));
+      setTasks(initialMarketingTasks);
+      localStorage.setItem('marketingTasks', JSON.stringify(initialMarketingTasks));
+    }
   }, []);
 
+  const saveTasksToLocalStorage = (updatedTasks: Task[]) => {
+    localStorage.setItem('marketingTasks', JSON.stringify(updatedTasks));
+  };
+
   const handleSaveTask = (data: TaskFormData, id?: string) => {
+    let updatedTasks;
     if (id) {
-      // Edit existing task
-      setTasks(prevTasks =>
-        prevTasks.map(task =>
-          task.id === id ? { ...task, ...data, assignedToId: data.assignedToId === "unassigned" ? undefined : data.assignedToId } : task
-        )
+      updatedTasks = tasks.map(task =>
+        task.id === id ? { ...task, ...data } : task
       );
     } else {
-      // Create new task
       const newTask: Task = {
         id: `task-${Date.now()}`,
         ...data,
-        assignedToId: data.assignedToId === "unassigned" ? undefined : data.assignedToId,
         createdAt: new Date().toISOString(),
       };
-      setTasks(prevTasks => [newTask, ...prevTasks]);
+      updatedTasks = [newTask, ...tasks];
     }
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
   };
 
   const handleDeleteTask = (id: string) => {
-    setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
+    const updatedTasks = tasks.filter(task => task.id !== id);
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
   };
 
   const handleUpdateStatus = (id: string, status: TaskStatus) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task => (task.id === id ? { ...task, status } : task))
-    );
+    const updatedTasks = tasks.map(task => (task.id === id ? { ...task, status } : task));
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
   };
   
   const handlePrioritizedTasks = (prioritizedTasks: Task[]) => {
-    // This will re-order based on AI, ensuring only marketing tasks are affected if this panel's tasks were passed.
-    // Or, if all tasks were passed to AI, it filters back to marketing tasks.
-    // For simplicity, assuming `prioritizedTasks` contains the reordered version of the current panel's tasks.
     setTasks(prioritizedTasks);
+    // Persist AI order if desired: saveTasksToLocalStorage(prioritizedTasks);
   };
 
   const filteredTasks = tasks
@@ -68,13 +77,18 @@ export function MarketingPanel() {
     )
     .filter(task => statusFilter === "all" || task.status === statusFilter)
     .filter(task => importanceFilter === "all" || task.importance === importanceFilter)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()); // Default sort by newest
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return (
     <div className="space-y-6 p-4 md:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <h2 className="text-2xl font-semibold text-foreground">Marketing Tasks</h2>
-        <TaskFormDialog onSave={handleSaveTask} mode="create" />
+        <TaskFormDialog 
+            onSave={handleSaveTask} 
+            mode="create" 
+            panelType="marketing"
+            triggerButton={<Button><PlusCircle className="mr-2 h-4 w-4" /> Add Marketing Task</Button>}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -122,6 +136,7 @@ export function MarketingPanel() {
               onUpdateTask={handleSaveTask} 
               onDeleteTask={handleDeleteTask}
               onUpdateStatus={handleUpdateStatus}
+              panelType="marketing"
             />
           ))}
         </div>

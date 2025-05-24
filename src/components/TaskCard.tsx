@@ -1,14 +1,15 @@
+
 "use client";
 
+import React, { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { TaskFormDialog } from "@/components/TaskFormDialog";
-import type { Task, StaffMember, TaskStatus } from "@/types";
+import type { Task, SystemUser, TaskStatus } from "@/types";
 import { TaskFormData } from "@/lib/schemas";
-import { mockStaff, mockTasks } from "@/lib/constants"; // Using mockStaff
 import { AlertTriangle, CalendarDays, CheckCircle2, Edit, MoreVertical, Tag, Trash2, User, XCircle, AlertCircle, Info } from "lucide-react";
 import { format, parseISO } from 'date-fns';
 
@@ -17,6 +18,7 @@ interface TaskCardProps {
   onUpdateTask: (data: TaskFormData, id: string) => void;
   onDeleteTask: (id: string) => void;
   onUpdateStatus: (id: string, status: TaskStatus) => void;
+  panelType?: 'marketing' | 'developer' | 'admin';
 }
 
 const getStatusIcon = (status: TaskStatus) => {
@@ -39,7 +41,7 @@ const getImportanceVariant = (importance: Task["importance"]): "default" | "seco
     case "high":
       return "destructive";
     case "medium":
-      return "default"; // Using primary color for medium
+      return "default"; 
     case "low":
       return "secondary";
     default:
@@ -47,8 +49,19 @@ const getImportanceVariant = (importance: Task["importance"]): "default" | "seco
   }
 };
 
-export function TaskCard({ task, onUpdateTask, onDeleteTask, onUpdateStatus }: TaskCardProps) {
-  const assignedStaff = mockStaff.find(staff => staff.id === task.assignedToId);
+export function TaskCard({ task, onUpdateTask, onDeleteTask, onUpdateStatus, panelType }: TaskCardProps) {
+  const [assignedUser, setAssignedUser] = useState<SystemUser | null | undefined>(undefined); // undefined means not yet checked
+
+  useEffect(() => {
+    if (task.assignedToId && typeof window !== 'undefined') {
+      const storedUsers: SystemUser[] = JSON.parse(localStorage.getItem('signupRequests') || '[]');
+      const user = storedUsers.find(u => u.id === task.assignedToId && u.status === 'approved');
+      setAssignedUser(user || null); // null if not found or not approved
+    } else {
+      setAssignedUser(null); // No assignee or SSR
+    }
+  }, [task.assignedToId]);
+
 
   const handleStatusChange = (status: TaskStatus) => {
     onUpdateStatus(task.id, status);
@@ -70,6 +83,7 @@ export function TaskCard({ task, onUpdateTask, onDeleteTask, onUpdateStatus }: T
                 task={task} 
                 onSave={onUpdateTask}
                 mode="edit"
+                panelType={panelType}
                 triggerButton={<DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                                  <Edit className="mr-2 h-4 w-4" /> Edit Task
                                </DropdownMenuItem>}
@@ -96,11 +110,29 @@ export function TaskCard({ task, onUpdateTask, onDeleteTask, onUpdateStatus }: T
             <CalendarDays className="h-4 w-4 mr-2 text-primary" />
             Due: {format(parseISO(task.deadline), "MMM dd, yyyy")}
           </div>
-          {assignedStaff && (
+          {assignedUser === undefined && ( // Still loading
+             <div className="flex items-center">
+                <User className="h-4 w-4 mr-2 text-primary animate-pulse" />
+                <span className="italic text-muted-foreground">Loading assignee...</span>
+             </div>
+          )}
+          {assignedUser && ( // User found
             <div className="flex items-center">
               <User className="h-4 w-4 mr-2 text-primary" />
-              Assigned to: {assignedStaff.name}
+              Assigned to: {assignedUser.name}
             </div>
+          )}
+          {assignedUser === null && task.assignedToId && ( // ID exists but user not found/approved or unassigned
+             <div className="flex items-center">
+                <User className="h-4 w-4 mr-2 text-muted-foreground" />
+                <span className="italic text-muted-foreground">User not found or unassigned</span>
+             </div>
+          )}
+           {!task.assignedToId && assignedUser === null && ( // Explicitly unassigned
+             <div className="flex items-center">
+                <User className="h-4 w-4 mr-2 text-muted-foreground" />
+                <span className="italic text-muted-foreground">Unassigned</span>
+             </div>
           )}
           <div className="flex items-center">
             <Tag className="h-4 w-4 mr-2 text-primary" />

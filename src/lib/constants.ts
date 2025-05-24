@@ -1,5 +1,8 @@
+
 import type { StaffMember, Task, Client, BusinessData } from '@/types';
 
+// mockStaff is now largely superseded by dynamic users from signupRequests for task assignment.
+// It can be kept for fallback or removed if no longer directly used.
 export const mockStaff: StaffMember[] = [
   { id: 'staff-1', name: 'Alice Wonderland', role: 'marketing' },
   { id: 'staff-2', name: 'Bob The Builder', role: 'developer' },
@@ -8,12 +11,13 @@ export const mockStaff: StaffMember[] = [
   { id: 'staff-5', name: 'Edward Scissorhands', role: 'developer' },
 ];
 
+// mockTasks are used for initial population if localStorage is empty for marketing/developer panels.
 export const mockTasks: Task[] = [
   {
     id: 'task-1',
     title: 'Draft Q3 Marketing Email',
     description: 'Prepare the draft for the quarterly marketing email campaign targeting new leads.',
-    assignedToId: 'staff-1',
+    // assignedToId: 'staff-1', // Initial assignment can be to mock or unassigned
     status: 'pending',
     type: 'email',
     deadline: '2024-08-15',
@@ -24,7 +28,7 @@ export const mockTasks: Task[] = [
     id: 'task-2',
     title: 'Develop User Auth Module',
     description: 'Implement JWT-based authentication for the new client portal.',
-    assignedToId: 'staff-2',
+    // assignedToId: 'staff-2',
     status: 'in-progress',
     type: 'development',
     deadline: '2024-08-20',
@@ -35,7 +39,7 @@ export const mockTasks: Task[] = [
     id: 'task-3',
     title: 'Cold Call 20 Leads',
     description: 'Follow up with the 20 leads generated from the recent webinar.',
-    assignedToId: 'staff-4',
+    // assignedToId: 'staff-4',
     status: 'pending',
     type: 'cold-call',
     deadline: '2024-08-10',
@@ -46,7 +50,7 @@ export const mockTasks: Task[] = [
     id: 'task-4',
     title: 'Client Meeting - Project Alpha',
     description: 'Weekly check-in meeting with Project Alpha stakeholders.',
-    assignedToId: 'staff-1',
+    // assignedToId: 'staff-1',
     status: 'pending',
     type: 'meeting',
     deadline: '2024-08-05',
@@ -57,7 +61,7 @@ export const mockTasks: Task[] = [
     id: 'task-5',
     title: 'UI Design for Dashboard',
     description: 'Create mockups and final UI design for the new admin dashboard.',
-    assignedToId: 'staff-5',
+    // assignedToId: 'staff-5',
     status: 'pending',
     type: 'design',
     deadline: '2024-08-25',

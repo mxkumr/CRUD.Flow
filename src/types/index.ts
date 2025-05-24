@@ -19,7 +19,7 @@ export type Task = {
   id: string;
   title: string;
   description: string;
-  assignedToId?: string; // Store ID of staff member
+  assignedToId?: string; // Store ID of staff member or approved user
   status: TaskStatus;
   type: TaskType;
   deadline: string; // YYYY-MM-DD
@@ -73,13 +73,34 @@ export const userRoles: UserRole[] = ['admin', 'developer', 'marketer'];
 
 export type SignupRequestStatus = 'pending' | 'approved' | 'rejected';
 
-export type SignupRequest = {
+// This type represents a user in the system, whether their request is pending, approved, or rejected.
+// If approved, `desiredRole` becomes their actual role.
+export type SystemUser = {
   id: string;
   name: string;
   email: string;
-  desiredRole: UserRole;
+  desiredRole: UserRole; // For pending requests, this is what they asked for. For approved users, this is their current role.
   status: SignupRequestStatus;
   requestedAt: string; // ISO date string
-  // Add a message field for the user to provide a reason for their request
   message?: string;
+};
+
+// Using SystemUser as the primary type for signup requests and general user representation.
+export type SignupRequest = SystemUser;
+
+
+// Helper function to get active users for assignment dropdowns
+export const getAssignableUsers = (panelType?: 'marketing' | 'developer' | 'admin'): SystemUser[] => {
+  if (typeof window === 'undefined') return []; // Guard for SSR
+  const storedUsers: SystemUser[] = JSON.parse(localStorage.getItem('signupRequests') || '[]');
+  const approvedUsers = storedUsers.filter(user => user.status === 'approved');
+
+  if (panelType === 'developer') {
+    return approvedUsers.filter(user => user.desiredRole === 'developer' || user.desiredRole === 'admin');
+  }
+  if (panelType === 'marketing') {
+    return approvedUsers.filter(user => user.desiredRole === 'marketer' || user.desiredRole === 'admin');
+  }
+  // If no panelType or admin, return all approved users. Admins can be assigned any task.
+  return approvedUsers;
 };

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -9,7 +10,7 @@ import { TaskFormDialog } from "@/components/TaskFormDialog";
 import { AIPrioritizationSection } from "@/components/AIPrioritizationSection";
 import type { Task, TaskStatus } from "@/types";
 import { TaskFormData } from "@/lib/schemas";
-import { mockTasks } from "@/lib/constants";
+import { mockTasks } from "@/lib/constants"; // We will filter these by type, but assignment will use real users
 import { PlusCircle, Search, Filter } from "lucide-react";
 
 export function DeveloperPanel() {
@@ -20,40 +21,58 @@ export function DeveloperPanel() {
 
   useEffect(() => {
     const devTaskTypes: Task["type"][] = ['development', 'design', 'research', 'meeting'];
-    setTasks(mockTasks.filter(task => devTaskTypes.includes(task.type)));
+    // For initial load, still use mockTasks, but filter for developer relevant types
+    // In a real backend, tasks would be fetched for the developer or their team.
+    // For now, we use localStorage for persistence.
+    const storedTasks = JSON.parse(localStorage.getItem('developerTasks') || 'null');
+    if (storedTasks) {
+      setTasks(storedTasks);
+    } else {
+      const initialDevTasks = mockTasks.filter(task => devTaskTypes.includes(task.type));
+      setTasks(initialDevTasks);
+      localStorage.setItem('developerTasks', JSON.stringify(initialDevTasks));
+    }
   }, []);
 
+  const saveTasksToLocalStorage = (updatedTasks: Task[]) => {
+    localStorage.setItem('developerTasks', JSON.stringify(updatedTasks));
+  };
 
   const handleSaveTask = (data: TaskFormData, id?: string) => {
+    let updatedTasks;
     if (id) {
-      setTasks(prevTasks =>
-        prevTasks.map(task =>
-          task.id === id ? { ...task, ...data, assignedToId: data.assignedToId === "unassigned" ? undefined : data.assignedToId } : task
-        )
+      updatedTasks = tasks.map(task =>
+        task.id === id ? { ...task, ...data } : task
       );
     } else {
       const newTask: Task = {
         id: `task-${Date.now()}`,
         ...data,
-        assignedToId: data.assignedToId === "unassigned" ? undefined : data.assignedToId,
         createdAt: new Date().toISOString(),
       };
-      setTasks(prevTasks => [newTask, ...prevTasks]);
+      updatedTasks = [newTask, ...tasks];
     }
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
   };
 
   const handleDeleteTask = (id: string) => {
-    setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
+    const updatedTasks = tasks.filter(task => task.id !== id);
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
   };
   
   const handleUpdateStatus = (id: string, status: TaskStatus) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task => (task.id === id ? { ...task, status } : task))
-    );
+    const updatedTasks = tasks.map(task => (task.id === id ? { ...task, status } : task));
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
   };
 
   const handlePrioritizedTasks = (prioritizedTasks: Task[]) => {
     setTasks(prioritizedTasks);
+    // Note: AI prioritization might not persist to localStorage unless explicitly saved after this.
+    // For simplicity, current AI prioritization is session-based for the view.
+    // To persist: saveTasksToLocalStorage(prioritizedTasks);
   };
 
   const filteredTasks = tasks
@@ -63,7 +82,10 @@ export function DeveloperPanel() {
     )
     .filter(task => statusFilter === "all" || task.status === statusFilter)
     .filter(task => importanceFilter === "all" || task.importance === importanceFilter)
+    // Default sort can be by AI priority if applied, or by creation/deadline.
+    // For now, relying on AI section to reorder if used, otherwise it's creation order (newest first due to how tasks are added).
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
 
   return (
     <div className="space-y-6 p-4 md:p-6">
@@ -72,6 +94,7 @@ export function DeveloperPanel() {
         <TaskFormDialog 
           onSave={handleSaveTask} 
           mode="create" 
+          panelType="developer"
           triggerButton={<Button><PlusCircle className="mr-2 h-4 w-4" /> Add Developer Task</Button>}
         />
       </div>
@@ -121,6 +144,7 @@ export function DeveloperPanel() {
               onUpdateTask={handleSaveTask} 
               onDeleteTask={handleDeleteTask}
               onUpdateStatus={handleUpdateStatus}
+              panelType="developer"
             />
           ))}
         </div>

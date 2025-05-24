@@ -1,3 +1,15 @@
+// This component is no longer the primary layout for the entire dashboard.
+// Its constituent panels (MarketingPanel, DeveloperPanel, ClientPanel, DataRequestPanel)
+// are now used directly by the role-specific pages:
+// - /src/app/(app)/admin/page.tsx
+// - /src/app/(app)/developer/page.tsx
+// - /src/app/(app)/marketing/page.tsx
+//
+// This file can be removed or repurposed if a tabbed layout is needed elsewhere.
+// For now, I'll comment out its content to avoid breaking imports if it's still referenced,
+// but it should ideally be deleted if no longer used.
+
+/*
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -40,4 +52,10 @@ export function DashboardLayout() {
       </Tabs>
     </div>
   );
+}
+*/
+
+// If you want to keep the file but make it non-functional:
+export function DashboardLayout() {
+  return null; 
 }

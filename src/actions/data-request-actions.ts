@@ -3,7 +3,8 @@
 
 import type { BusinessData } from '@/types';
 import { DataRequestFormSchema, type DataRequestFormData } from '@/lib/schemas';
-import { mockBusinessData } // Using mock data for now
+// Using mock data for now
+import { mockBusinessData } from '@/lib/constants';
 // import { firestore } from '@/lib/firebase-admin'; // Uncomment when ready to use Firestore
 // import { collection, addDoc } from 'firebase-admin/firestore'; // Example Firestore import
 

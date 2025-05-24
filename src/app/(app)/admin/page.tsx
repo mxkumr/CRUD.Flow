@@ -15,21 +15,21 @@ export default function AdminDashboardPage() {
       <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
       
       <Tabs defaultValue="clients" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 mb-6"> 
-          <TabsTrigger value="clients">
-            <Users className="mr-2 h-4 w-4" /> Clients
+        <TabsList className="flex items-center justify-start w-full overflow-x-auto h-12 rounded-md bg-muted p-1 text-muted-foreground mb-6"> 
+          <TabsTrigger value="clients" className="px-3 py-1.5">
+            <Users className="mr-2 h-4 w-4 flex-shrink-0" /> Clients
           </TabsTrigger>
-          <TabsTrigger value="data-request">
-            <DatabaseZap className="mr-2 h-4 w-4" /> Data Request
+          <TabsTrigger value="data-request" className="px-3 py-1.5">
+            <DatabaseZap className="mr-2 h-4 w-4 flex-shrink-0" /> Data Request
           </TabsTrigger>
-          <TabsTrigger value="pending-requests">
-            <UserCheck className="mr-2 h-4 w-4" /> Sign-up Requests
+          <TabsTrigger value="pending-requests" className="px-3 py-1.5">
+            <UserCheck className="mr-2 h-4 w-4 flex-shrink-0" /> Sign-up Requests
           </TabsTrigger>
-          <TabsTrigger value="developer-tasks">
-            <Code className="mr-2 h-4 w-4" /> Developer Tasks
+          <TabsTrigger value="developer-tasks" className="px-3 py-1.5">
+            <Code className="mr-2 h-4 w-4 flex-shrink-0" /> Developer Tasks
           </TabsTrigger>
-          <TabsTrigger value="marketing-tasks">
-            <Megaphone className="mr-2 h-4 w-4" /> Marketing Tasks
+          <TabsTrigger value="marketing-tasks" className="px-3 py-1.5">
+            <Megaphone className="mr-2 h-4 w-4 flex-shrink-0" /> Marketing Tasks
           </TabsTrigger>
         </TabsList>
         <TabsContent value="clients">
@@ -51,4 +51,3 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
-

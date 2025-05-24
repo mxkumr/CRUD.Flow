@@ -1,3 +1,4 @@
+
 export type StaffMember = {
   id: string;
   name: string;
@@ -66,3 +67,19 @@ export function mapToAITask(task: Task): AITaskInput {
     type: aiTaskType,
   };
 }
+
+export type UserRole = 'admin' | 'developer' | 'marketer';
+export const userRoles: UserRole[] = ['admin', 'developer', 'marketer'];
+
+export type SignupRequestStatus = 'pending' | 'approved' | 'rejected';
+
+export type SignupRequest = {
+  id: string;
+  name: string;
+  email: string;
+  desiredRole: UserRole;
+  status: SignupRequestStatus;
+  requestedAt: string; // ISO date string
+  // Add a message field for the user to provide a reason for their request
+  message?: string;
+};

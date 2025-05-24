@@ -1,5 +1,6 @@
+
 import { z } from 'zod';
-import { taskStatuses, taskTypes, taskImportances } from '@/types';
+import { taskStatuses, taskTypes, taskImportances, userRoles } from '@/types';
 
 export const TaskFormSchema = z.object({
   id: z.string().optional(),
@@ -32,3 +33,12 @@ export const DataRequestFormSchema = z.object({
   businessType: z.string().min(3, "Business type must be specified."),
 });
 export type DataRequestFormData = z.infer<typeof DataRequestFormSchema>;
+
+export const SignupFormSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters."),
+  email: z.string().email("Invalid email address."),
+  desiredRole: z.enum(userRoles as [UserRole, ...UserRole[]]),
+  message: z.string().min(10, "Please provide a brief message (min 10 characters).").optional(),
+  // We are not asking for password at signup, admin grants access.
+});
+export type SignupFormData = z.infer<typeof SignupFormSchema>;

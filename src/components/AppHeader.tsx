@@ -1,6 +1,7 @@
+
 'use client';
 
-import { Briefcase, LogOut, UserCircle } from 'lucide-react';
+import { LogOut, UserCircle } from 'lucide-react'; // Removed Briefcase
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +18,7 @@ export function AppHeader({ isAuthenticated, userRole }: AppHeaderProps) {
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userRole');
+    localStorage.removeItem('loggedInUserEmail'); // Also clear loggedInUserEmail
     toast({
       title: 'Logged Out',
       description: 'You have been successfully logged out.',
@@ -24,17 +26,13 @@ export function AppHeader({ isAuthenticated, userRole }: AppHeaderProps) {
     router.push('/login');
   };
 
-  // This component might be rendered outside the (app) layout context (e.g. on a public login page without props)
-  // So we need to handle the case where isAuthenticated/userRole are not passed.
-  // For a truly global header, it might need its own context or to always fetch from localStorage.
-  // For now, assuming it's primarily used within authenticated contexts or props are passed.
-
   return (
     <header className="py-4 px-4 md:px-6 border-b border-border bg-card">
       <div className="container mx-auto flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Briefcase className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold text-foreground">AgencyFlow</h1>
+        <div className="flex items-baseline gap-1 cursor-pointer" onClick={() => router.push('/')}>
+          {/* Text-based logo */}
+          <span className="text-3xl font-extrabold text-primary tracking-tight">CRUD.</span>
+          <h1 className="text-3xl font-bold text-foreground">Flow</h1>
         </div>
         {isAuthenticated && (
           <div className="flex items-center gap-3">

@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'AgencyFlow',
-  description: 'Efficiently manage your agency tasks, developers, and clients.',
+  title: 'CrudFlow',
+  description: 'Efficiently manage your agency tasks, developers, and clients with CrudFlow.',
 };
 
 export default function RootLayout({

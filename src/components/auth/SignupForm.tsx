@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Briefcase, UserPlus, Send } from 'lucide-react';
+import { UserPlus, Send } from 'lucide-react'; // Removed Briefcase
 import { useToast } from '@/hooks/use-toast';
 import { SignupFormSchema, type SignupFormData } from '@/lib/schemas';
 import type { SignupRequest, UserRole } from '@/types';
@@ -51,11 +51,9 @@ export function SignupForm() {
     };
 
     try {
-      // Simulate API call & store in localStorage
       await new Promise(resolve => setTimeout(resolve, 1000));
       const existingRequests: SignupRequest[] = JSON.parse(localStorage.getItem(SIGNUP_REQUESTS_STORAGE_KEY) || '[]');
       
-      // Check if email already has a pending or approved request
       const conflictingRequest = existingRequests.find(
         req => req.email === newRequest.email && (req.status === 'pending' || req.status === 'approved')
       );
@@ -67,7 +65,7 @@ export function SignupForm() {
             description: 'You already have a pending request with this email. Please wait for admin approval.',
             variant: 'destructive',
           });
-        } else { // approved
+        } else { 
            toast({
             title: 'Account Exists',
             description: 'An account with this email has already been approved. Please try logging in.',
@@ -85,8 +83,6 @@ export function SignupForm() {
         description: 'Your request has been sent to the admin for approval.',
       });
       form.reset();
-      // Optionally redirect or show a success message inline
-      // router.push('/login'); 
     } catch (error) {
       console.error("Signup error:", error);
       toast({
@@ -102,8 +98,10 @@ export function SignupForm() {
   return (
     <Card className="w-full max-w-lg shadow-xl">
       <CardHeader className="text-center">
-        <div className="flex justify-center items-center mb-4">
-          <UserPlus className="h-10 w-10 text-primary" />
+        {/* Replaced Briefcase icon with styled text for app name */}
+        <div className="flex items-baseline justify-center gap-1 mb-4">
+          <span className="text-4xl font-extrabold text-primary tracking-tight">CRUD.</span>
+          <h1 className="text-4xl font-bold text-foreground">Flow</h1>
         </div>
         <CardTitle className="text-2xl">Request Access</CardTitle>
         <CardDescription>Fill out the form below to request an account. Admin approval is required.</CardDescription>
@@ -165,10 +163,8 @@ export function SignupForm() {
   );
 }
 
-// Helper so we don't have to spread Form from react-hook-form everywhere
-// This is a common pattern for ShadCN forms.
-// We'll just use the direct form.register method for simplicity here.
-const Form = ({ children, onSubmit, className }: { children: React.ReactNode; onSubmit: () => void; className?: string; }) => (
+// Helper to use react-hook-form's FormContext with ShadCN components
+const Form = ({ children, onSubmit, className }: { children: React.ReactNode; onSubmit: (e: React.BaseSyntheticEvent) => void; className?: string; }) => (
   <form onSubmit={onSubmit} className={className}>
     {children}
   </form>

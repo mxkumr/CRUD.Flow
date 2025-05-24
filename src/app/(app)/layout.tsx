@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, type ReactNode } from 'react';
@@ -18,20 +19,22 @@ export default function AppLayout({ children }: AppLayoutProps) {
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     const role = localStorage.getItem('userRole');
+    const loggedInUserEmail = localStorage.getItem('loggedInUserEmail'); // Fetch email
     
-    if (token && role) {
+    if (token && role && loggedInUserEmail) { // Ensure email is also present
       setIsAuthenticated(true);
       setUserRole(role);
       
-      // Role-based redirection if accessing a page not meant for the role
-      // This is a simple check, could be more robust
-      const currentPathRole = window.location.pathname.split('/')[1];
-      if (currentPathRole && role !== currentPathRole && ['admin', 'developer', 'marketing'].includes(currentPathRole)) {
+      // Role-based redirection
+      const currentPath = window.location.pathname;
+      const currentPathBase = currentPath.split('/')[1]; // e.g., 'admin', 'developer'
+
+      if (['admin', 'developer', 'marketing'].includes(currentPathBase) && role !== currentPathBase) {
          // If user is on /admin but their role is 'developer', redirect them
-         if (role === 'admin') router.replace('/admin');
-         else if (role === 'developer') router.replace('/developer');
-         else if (role === 'marketer') router.replace('/marketing');
-         else router.replace('/login'); // Fallback
+         if (role === 'admin' && currentPathBase !== 'admin') router.replace('/admin');
+         else if (role === 'developer' && currentPathBase !== 'developer') router.replace('/developer');
+         else if (role === 'marketer' && currentPathBase !== 'marketing') router.replace('/marketing');
+         // If they are on a non-role page like '/', redirect handled by src/app/page.tsx
       }
 
     } else {
@@ -50,9 +53,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }
 
   if (!isAuthenticated) {
-    // This case should ideally be handled by the redirect,
-    // but as a fallback, prevent rendering children.
-    // Or show a message "Redirecting to login..."
     return null; 
   }
 
@@ -63,7 +63,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         {children}
       </main>
       <footer className="py-6 text-center text-sm text-muted-foreground border-t border-border mt-auto">
-        © {new Date().getFullYear()} AgencyFlow. All rights reserved.
+        © {new Date().getFullYear()} CrudFlow. All rights reserved.
       </footer>
     </div>
   );

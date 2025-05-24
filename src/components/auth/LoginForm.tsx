@@ -6,27 +6,12 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-// Select components are not used in this version of login form
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Briefcase, LogIn, UserPlus } from 'lucide-react';
+import { LogIn, UserPlus } from 'lucide-react'; // Removed Briefcase
 import { useToast } from '@/hooks/use-toast';
-import type { SignupRequest, UserRole } from '@/types';
+import type { SignupRequest } from '@/types'; // SystemUser is aliased as SignupRequest
 
 const SIGNUP_REQUESTS_STORAGE_KEY = 'signupRequests';
-
-// availableRoles is not used directly in this form anymore
-// const availableRoles: { value: UserRole; label: string }[] = [
-//   { value: 'admin', label: 'Admin' },
-//   { value: 'developer', label: 'Developer' },
-//   { value: 'marketer', label: 'Marketer' },
-// ];
 
 export function LoginForm() {
   const router = useRouter();
@@ -37,7 +22,6 @@ export function LoginForm() {
   const [approvedUsers, setApprovedUsers] = useState<SignupRequest[]>([]);
 
   useEffect(() => {
-    // Load approved users from localStorage
     const storedRequests: SignupRequest[] = JSON.parse(localStorage.getItem(SIGNUP_REQUESTS_STORAGE_KEY) || '[]');
     setApprovedUsers(storedRequests.filter(req => req.status === 'approved'));
   }, []);
@@ -57,7 +41,6 @@ export function LoginForm() {
       return;
     }
 
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     const specialAdminEmail = 'thecrudstudio@gmail.com';
@@ -72,16 +55,15 @@ export function LoginForm() {
       );
 
       if (existingApprovedAdmins.length === 0) {
-        // This is the first admin or no other admins are approved yet
         localStorage.setItem('authToken', `mock-token-for-${email}`);
         localStorage.setItem('userRole', 'admin');
+        localStorage.setItem('loggedInUserEmail', email.toLowerCase()); // Store email
 
         toast({
           title: 'Super Admin Login Successful',
           description: 'Welcome, initial administrator!',
         });
 
-        // Ensure an "approved" record exists for this special admin
         let specialAdminRequest = allRequests.find(req => req.email.toLowerCase() === specialAdminEmail);
         let requestsUpdated = false;
         if (specialAdminRequest) {
@@ -106,7 +88,6 @@ export function LoginForm() {
 
         if (requestsUpdated) {
            localStorage.setItem(SIGNUP_REQUESTS_STORAGE_KEY, JSON.stringify(allRequests));
-           // Update approvedUsers state if needed for immediate re-renders, though router.push should handle it.
            setApprovedUsers(allRequests.filter(req => req.status === 'approved'));
         }
         
@@ -114,16 +95,14 @@ export function LoginForm() {
         setIsLoading(false);
         return; 
       }
-      // If other admins exist, the special credentials won't work as a super login.
-      // Fall through to normal login check.
     }
 
     const userToLogin = approvedUsers.find(user => user.email.toLowerCase() === email.toLowerCase());
 
     if (userToLogin) {
-      // Mock authentication: any non-empty password is valid for an approved user
       localStorage.setItem('authToken', `mock-token-for-${email}`);
       localStorage.setItem('userRole', userToLogin.desiredRole);
+      localStorage.setItem('loggedInUserEmail', userToLogin.email.toLowerCase()); // Store email
 
       toast({
         title: 'Login Successful',
@@ -132,7 +111,6 @@ export function LoginForm() {
       
       router.push('/'); 
     } else {
-       // Check if there's a pending or rejected request for this email
       const allRequests: SignupRequest[] = JSON.parse(localStorage.getItem(SIGNUP_REQUESTS_STORAGE_KEY) || '[]');
       const pendingRequest = allRequests.find(req => req.email.toLowerCase() === email.toLowerCase() && req.status === 'pending');
       const rejectedRequest = allRequests.find(req => req.email.toLowerCase() === email.toLowerCase() && req.status === 'rejected');
@@ -153,7 +131,7 @@ export function LoginForm() {
       else {
         toast({
           title: 'Login Failed',
-          description: 'Invalid credentials or account not approved/found. Please sign up if you don\'t have an account or contact admin if you are the special admin and other admins exist.',
+          description: 'Invalid credentials or account not approved/found. Please sign up or contact admin.',
           variant: 'destructive',
         });
       }
@@ -164,11 +142,13 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md shadow-xl">
       <CardHeader className="text-center">
-        <div className="flex justify-center items-center mb-4">
-          <Briefcase className="h-10 w-10 text-primary" />
+        {/* Replaced Briefcase icon with styled text for app name */}
+        <div className="flex items-baseline justify-center gap-1 mb-4">
+          <span className="text-4xl font-extrabold text-primary tracking-tight">CRUD.</span>
+          <h1 className="text-4xl font-bold text-foreground">Flow</h1>
         </div>
-        <CardTitle className="text-2xl">AgencyFlow Login</CardTitle>
-        <CardDescription>Access your agency dashboard. Admin approval required for new accounts.</CardDescription>
+        <CardTitle className="text-2xl">Login</CardTitle>
+        <CardDescription>Access your dashboard. Admin approval required for new accounts.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleLogin} className="space-y-6">
@@ -210,7 +190,7 @@ export function LoginForm() {
         </form>
       </CardContent>
       <CardFooter className="flex flex-col gap-2 items-center text-xs text-muted-foreground">
-        <p>For demo: any password works after admin approval. Special admin: thecrudstudio@gmail.com / password!@# (if no other admins).</p>
+        <p>For demo: any password works after admin approval. Super Admin: thecrudstudio@gmail.com / password!@# (if no other admins).</p>
         <Button variant="link" className="p-0 h-auto text-sm" onClick={() => router.push('/signup')}>
           <UserPlus className="mr-2 h-4 w-4" /> Don't have an account? Request Access
         </Button>
